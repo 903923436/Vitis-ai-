@@ -1,0 +1,101 @@
+1.翻墙
+首先下载curl 
+sudo apt install curl
+
+安装v2rayl
+bash <(curl -s -L http://dl.thinker.ink/install.sh) 
+打开：https://freemycloud.pw
+购买节点后复制V2raly订阅
+在v2rayl中添加订阅
+https://freemycloud.site/link/YfYA5hZk9h1D9f83?sub=3
+打开一个可用连接
+将右上角V2raly全局代理设置为白名单即可翻墙
+
+
+2.安装docker
+sudo apt-get remove docker docker-engine docker.io containerd runc
+
+更新apt软件包索引并安装软件包以允许apt通过HTTPS使用存储库：
+
+sudo apt-get update
+
+sudo apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg-agent \
+    software-properties-common
+
+添加Docker的官方GPG密钥：
+
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+(
+9DC8 5822 9FC7 DD38 854A  E2D8 8D81 803C 0EBF CD88通过搜索指纹的后8个字符，验证您现在是否拥有带有指纹的密钥 。
+)
+sudo apt-key fingerprint 0EBFCD88
+
+sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+
+
+#https://blog.csdn.net/u010879745/article/details/107265677
+#https://www.jianshu.com/p/f25ccedb996e
+3.确保您的Linux用户在docker组中
+3.1创建docker组。
+
+sudo groupadd docker
+
+3.2将您的用户添加到该docker组。
+
+sudo usermod -aG docker $USER
+
+3.3注销并重新登录，以便重新评估您的组成员身份。如果在虚拟机上进行测试，则可能需要重新启动虚拟机以使更改生效。在台式机Linux环境（例如X Windows）上，完全注销会话，然后重新登录。在Linux上，您还可以运行以下命令来激活对组的更改：
+
+newgrp docker 
+
+验证您是否可以运行docker不带命令的命令sudo。
+
+docker run hello-world
+
+(
+此命令下载测试图像并在容器中运行它。容器运行时，它会打印参考消息并退出。如果您最初sudo在将用户添加到docker组中之前使用来运行Docker CLI命令，则可能会看到以下错误，这表明~/.docker/由于该sudo命令，您的目录创建时使用的权限不正确。
+WARNING: Error loading config file: /home/user/.docker/config.json -
+stat /home/user/.docker/config.json: permission denied
+要解决此问题，请删除~/.docker/目录（会自动重新创建目录，但是所有自定义设置都会丢失），或者使用以下命令更改其所有权和权限：
+sudo chown "$USER":"$USER" /home/"$USER"/.docker -R
+sudo chmod g+rwx "$HOME/.docker" -R
+）
+
+
+4.安装Vitis-AI
+首先克隆Vitis-AI存储库以获取示例，参考代码和脚本（若不安装gpu版可以下载复制，若安装gpu版的建议使用命令，复制会引起gpu安装时出现错误而对cpu版没影响）
+
+git clone --recurse-submodules https://github.com/Xilinx/Vitis-AI  
+cd Vitis-AI
+
+（
+执行.sh脚本时，报错 "docker_run.sh   /bin/bash^M: 坏的解释器：没有那个文件或目录”,因为 .sh文件是从windows拷贝过来的，所以多了\r，执行：
+sed -i 's/\r$//' ./docker_run.sh 
+）
+
+CPU
+安装cpu版的只需要以下几部：
+sed -i 's/\r$//' ./docker_run.sh （如果不是复制的，请跳过这条命令）
+chmod 777 docker_run.sh
+sudo ./docker_run.sh xilinx/vitis-ai-cpu:latest（既是安装命令__会自动拉取安装__，也是运行命令）
+
+GPU（千万主要别复制itis-ai）
+cd ./docker
+chmod 777 docker_build_gpu.sh
+sudo ./docker_build_gpu.sh
+运行
+cd ..
+chmod 777 docker_run.sh
+sudo ./docker_run.sh xilinx/vitis-ai-gpu:latest
+
+
+
+
+
